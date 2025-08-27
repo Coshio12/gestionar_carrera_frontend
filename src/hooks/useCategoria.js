@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react';
 import { useToast } from '../context/ToastContext';
 
 // Cambiar puerto a 5000 si mantienes el puerto original
-const API_URL = 'http://localhost:10000/api/categorias';
+const API =  import.meta.env.VITE_API_URL
+const API_URL = `${API}/api/categorias`;
 const HEALTH_URL = 'http://localhost:10000/health';
 
 export default function useCategoria() {

@@ -3,7 +3,7 @@ import { CheckCircle, AlertCircle } from 'lucide-react';
 import InscripcionFields from './InscripcionFields';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:10000';
 
 export default function InscripcionForm() {
   const [form, setForm] = useState({
@@ -87,7 +87,7 @@ export default function InscripcionForm() {
         let errorMessage = 'Error cargando datos del servidor.';
         
         if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          errorMessage = 'No se puede conectar al servidor. Verifica que esté ejecutándose en http://localhost:5000';
+          errorMessage = 'No se puede conectar al servidor. Verifica que esté ejecutándose en http://localhost:10000';
         } else if (error.response?.status === 401) {
           errorMessage = 'Token de autenticación inválido. Por favor, inicia sesión nuevamente.';
         } else if (error.response?.status === 404) {

@@ -31,7 +31,7 @@ export const useRegistroRapido = () => {
   // Cargar etapas
   const cargarEtapas = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/tiempos/etapas', {
+      const response = await fetch('http://localhost:10000/api/tiempos/etapas', {
         headers: getAuthHeaders()
       });
       
@@ -57,7 +57,7 @@ export const useRegistroRapido = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/tiempos/participantes/dorsal/${dorsalBuscado}`, {
+      const response = await fetch(`http://localhost:10000/api/tiempos/participantes/dorsal/${dorsalBuscado}`, {
         headers: getAuthHeaders()
       });
       
@@ -145,7 +145,7 @@ export const useRegistroRapido = () => {
         observaciones: null
       };
 
-      const response = await fetch('http://localhost:5000/api/tiempos/tiempos/rapido', {
+      const response = await fetch('http://localhost:10000/api/tiempos/tiempos/rapido', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),

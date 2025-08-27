@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { useToast } from '../context/ToastContext';
 
 // Cambiar puerto a 5000 si mantienes el puerto original
-const API_URL = 'http://localhost:5000/api/categorias';
-const HEALTH_URL = 'http://localhost:5000/health';
+const API_URL = 'http://localhost:10000/api/categorias';
+const HEALTH_URL = 'http://localhost:10000/health';
 
 export default function useCategoria() {
   const [form, setForm] = useState({

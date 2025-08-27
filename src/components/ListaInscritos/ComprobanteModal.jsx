@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Download, FileText, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:10000';
 
 export default function ComprobanteModal({ 
   isOpen, 

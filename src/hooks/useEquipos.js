@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 export const useEquipos = () => {
   const [equipos, setEquipos] = useState([]);

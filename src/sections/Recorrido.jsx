@@ -13,13 +13,13 @@ export default function Recorrido() {
   const imagenes = [img1, img2, img3, img4];
 
   const handleDownloadPDF = () => {
-    const pdfUrl = "/public/pdfs/CARRERA-CICLISTA-2025.pdf";
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.download = 'Convocatoria-San-Roque-Chaguaya.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const pdfUrl = "/pdfs/CARRERA-CICLISTA-2025.pdf"; // desde public
+  const link = document.createElement("a");
+  link.href = pdfUrl;
+  link.download = "Convocatoria-San-Roque-Chaguaya.pdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   };
 
   return (

@@ -4,7 +4,7 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 // URL base del backend
-const API_BASE_URL = 'http://localhost:10000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

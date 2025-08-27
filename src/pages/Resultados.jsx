@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import { useTiempo } from '../hooks/useTiempo';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:10000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 const Resultados = () => {
   const [categorias, setCategorias] = useState([]);

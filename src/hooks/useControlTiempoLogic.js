@@ -7,6 +7,8 @@ import { useTimeCalculations } from "../hooks/useTimeCalculations";
 
 export const useControlTiempoLogic = () => {
   // Estados de datos persistentes
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000'
   const {
     etapas,
     setEtapas,
@@ -307,8 +309,8 @@ const guardarTiempo = useCallback(
         penalizacion: 0,
         observaciones: null,
       };
-
-      const response = await fetch("http://localhost:10000/api/tiempos/tiempos", {
+    
+      const response = await fetch(`${API_URL}/api/tiempos/tiempos`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import { useToast } from '../context/ToastContext';
 
-const API_BASE_URL = 'http://localhost:10000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 export default function useInscripcionForm() {
   const [form, setForm] = useState({

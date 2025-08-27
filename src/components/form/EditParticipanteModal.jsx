@@ -3,7 +3,7 @@ import { X, Upload, Eye, Calendar } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:10000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 export default function EditParticipanteModal({ 
   isOpen, 

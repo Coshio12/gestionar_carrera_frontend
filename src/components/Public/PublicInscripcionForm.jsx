@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, AlertCircle, Upload } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:10000';
+const API_BASE_URL = 'http://localhost:10000' || 'https://gestionar-carrera-backend.onrender.com';
 
 export default function PublicInscripcionForm() {
   const [form, setForm] = useState({

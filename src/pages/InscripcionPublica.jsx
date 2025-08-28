@@ -7,17 +7,17 @@ export default function InscripcionPublica() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50">
       <PublicHeader />
-      
+
       {/* Hero de la página de inscripción */}
-      <section className="bg-gradient-to-r from-green-600 to-green-400 text-white py-16">
-        <div className="max-w-4xl mx-auto text-center px-4">
+      <section className="bg-gradient-to-r from-green-600 to-green-400 text-white py-10">
+        <div className="max-w-4xl mx-auto text-center px-1">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             ¡Inscríbete a la Carrera Chaguaya!
           </h1>
           <p className="text-xl md:text-2xl mb-6">
             Completa el formulario y sé parte de esta increíble aventura
           </p>
-          <div className="grid md:grid-cols-3 gap-4 mt-8">
+          <div className="grid md:grid-cols-2 gap-4 mt-8">
             <div className="bg-white/20 p-4 rounded-lg">
               <h3 className="font-bold text-lg">Fácil y Rápido</h3>
               <p>Proceso de inscripción simple</p>
@@ -26,9 +26,18 @@ export default function InscripcionPublica() {
               <h3 className="font-bold text-lg">Kit Incluido</h3>
               <p>Recibe tu kit del corredor</p>
             </div>
-            <div className="bg-white/20 p-4 rounded-lg">
-              <h3 className="font-bold text-lg">Seguro Incluido</h3>
-              <p>Cobertura durante la carrera</p>
+          </div>
+          <div className="mt-8 rounded-lg">
+            <div className="bg-red-600 p-4 rounded-lg">
+            <h3 className="font-bold text-lg">SOBRE ACCIDENTES</h3>
+            <p>
+              El Comité Organizador <strong> <u> NO SE RESPONSABILIZAN </u></strong> por los <strong> <u> ACCIDENTES </u></strong> que
+              pudieran tener a los Ciclistas y/o a terceras personas, antes,
+              durante y después de la Competencia, por lo que los competidores
+              deberán tomar las precauciones necesarias <i> <u> ( es muy importante y
+              aconsejable para los participantes tener el casco de competición y
+              las medidas de precaución necesarias) </u> </i> 
+            </p>
             </div>
           </div>
         </div>
@@ -53,7 +62,7 @@ export default function InscripcionPublica() {
                 Requisitos
               </h3>
               <ul className="text-gray-700 space-y-2">
-                <li>• Ser mayor de 16 años</li>
+                <li>• Haber nacido apartir del 2011</li>
                 <li>• Presentar documento de identidad (ambas caras)</li>
                 <li>• Completar formulario de inscripción</li>
                 <li>• Realizar el pago correspondiente</li>
@@ -65,8 +74,12 @@ export default function InscripcionPublica() {
                 Métodos de Pago
               </h3>
               <ul className="text-gray-700 space-y-2">
-                <li>• <strong>Efectivo:</strong> En puntos autorizados</li>
-                <li>• <strong>QR:</strong> Pago digital inmediato</li>
+                <li>
+                  • <strong>Efectivo:</strong> En puntos autorizados
+                </li>
+                <li>
+                  • <strong>QR:</strong> Pago digital inmediato
+                </li>
                 <li>• Subir comprobante obligatorio</li>
                 <li>• Inscripción válida tras verificación</li>
               </ul>
@@ -75,7 +88,7 @@ export default function InscripcionPublica() {
               <h3 className="text-xl font-semibold text-green-700 mb-3">
                 Documentos Necesarios
               </h3>
-              <div className="grid md:grid-cols-3 gap-4 text-gray-700">
+              <div className="grid md:grid-cols-4 gap-4 text-gray-700">
                 <div>
                   <h4 className="font-semibold">Comprobante de Pago</h4>
                   <p className="text-sm">Foto o captura del pago realizado</p>
@@ -86,7 +99,15 @@ export default function InscripcionPublica() {
                 </div>
                 <div>
                   <h4 className="font-semibold">CI/DNI Reverso</h4>
-                  <p className="text-sm">Foto clara del reverso del documento</p>
+                  <p className="text-sm">
+                    Foto clara del reverso del documento
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Si es menor de edad</h4>
+                  <p className="text-sm">
+                    Adjuntar autorización firmada por padres/tutores
+                  </p>
                 </div>
               </div>
             </div>
@@ -98,8 +119,10 @@ export default function InscripcionPublica() {
               Asignación de Dorsales
             </h3>
             <p className="text-gray-700 text-sm">
-              <strong>Importante:</strong> Los números de dorsal serán asignados por los organizadores después de verificar tu inscripción y documentos. 
-              No necesitas elegir un número durante el registro. Te contactaremos para comunicarte tu dorsal asignado.
+              <strong>Importante:</strong> Los números de dorsal serán asignados
+              por los organizadores después de verificar tu inscripción y
+              documentos. No necesitas elegir un número durante el registro. Te
+              contactaremos para comunicarte tu dorsal asignado.
             </p>
           </div>
         </div>

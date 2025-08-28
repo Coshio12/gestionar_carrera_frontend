@@ -12,7 +12,7 @@ export default function SobreCarrera() {
           Es una travesía en bicicleta que mezcla la devoción con la aventura, recorriendo paisajes únicos del sur de Bolivia.
         </p>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 text-left">
           <div className="bg-green-50 p-4 sm:p-6 rounded-lg">
             <h3 className="text-lg sm:text-xl font-semibold text-green-700 mb-3">
               🚴‍♂️ La Experiencia
@@ -32,6 +32,18 @@ export default function SobreCarrera() {
               de vivir una experiencia deportiva con profundo significado espiritual.
             </p>
           </div>
+
+          <div className="bg-red-100 p-4 sm:p-6 rounded-lg">
+            <h3 className="text-lg sm:text-xl font-semibold text-red-700 mb-3">
+              ❌ Sobre Accidentes
+            </h3>
+            <p className="text-sm sm:text-base text-gray-700">
+              El Comité Organizador <strong> <u> NO SE RESPONSABILIZAN </u></strong> por los <strong> <u> ACCIDENTES </u></strong> que
+              pudieran tener a los Ciclistas y/o a terceras personas, antes,
+              durante y después de la Competencia
+            </p>
+          </div>
+          
         </div>
       </div>
     </section>

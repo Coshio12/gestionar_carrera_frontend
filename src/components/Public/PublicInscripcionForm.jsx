@@ -191,6 +191,12 @@ export default function PublicInscripcionForm() {
         <p className="text-sm sm:text-base text-gray-600 px-2">
           Completa todos los campos para confirmar tu participación
         </p>
+        {/* Nota final responsive */}
+          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-xs sm:text-sm text-red-700 leading-relaxed">
+              <strong>Nota:</strong>Si desea inscribir a un menor de edad. Los Organizadores NO SE RESPONSABILIZAN por los accidentes del ciclista antes, durante y despues de la Competencia, siendo de total responsabilidad del ciclista y de los padres y/o tutores del menor de edad, cualquier inconveniente que sufrieran y declaro estar en conformidad y de pleno acuerdo con todos los terminos establecidos en la reglamentacion de la competencia descritos en la convocatoria, debera adjuntar una autorizacion firmada por los padres y/o tutores del menor de edad.
+            </p>
+          </div>
       </div>
 
       {/* Loader inicial */}
@@ -433,6 +439,9 @@ export default function PublicInscripcionForm() {
               </div>
             </div>
 
+            <div className='w-2xsm sm:w-3xs md:w-4xs lg:w-5xs xl:w-6xs 2xl:w-7xs mx-auto mt-4 sm:mt-6'>
+              <img src="" alt="codigo QR inscripcion" className="object-contain h-48 sm:h-64 md:h-50 lg:h-50 w-full mx-auto border-4 border-white shadow-lg" />
+            </div>
             {/* Botón de envío responsive */}
             <div className="text-center pt-4 sm:pt-6">
               <button 

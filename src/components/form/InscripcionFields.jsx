@@ -23,6 +23,17 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
     }
   };
 
+  const getBirthYear = (birthDate) => {
+    if (!birthDate) return null;
+    return new Date(birthDate).getFullYear();
+  };
+
+  // Calcular edad actual para validaciones
+  const currentAge = form.fecha_nacimiento ? calculateAge(form.fecha_nacimiento) : null;
+  const currentBirthYear = form.fecha_nacimiento ? getBirthYear(form.fecha_nacimiento) : null;
+  const isMenorDeEdad = currentAge !== 'N/A' && currentAge < 18;
+  const isValidBirthYear = currentBirthYear && currentBirthYear <= 2011;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,16 +93,34 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
               value={form.fecha_nacimiento}
               onChange={handleChange}
               type="date"
-              max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
+              min="2011-01-01"
+              max={new Date().toISOString().split('T')[0]}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               required
             />
             <Calendar className="absolute right-3 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
           </div>
           {form.fecha_nacimiento && (
-            <p className="text-xs text-gray-600 mt-1">
-              Edad: {calculateAge(form.fecha_nacimiento)} años
-            </p>
+            <div className="mt-1">
+              <p className="text-xs text-gray-600">
+                Edad: {calculateAge(form.fecha_nacimiento)} años (Año: {getBirthYear(form.fecha_nacimiento)})
+              </p>
+              {!isValidBirthYear && (
+                <p className="text-xs text-red-600 font-medium">
+                  ⚠ No cumple con el requisito de edad (debe ser nacido desde 2011)
+                </p>
+              )}
+              {isValidBirthYear && isMenorDeEdad && (
+                <p className="text-xs text-orange-600 font-medium">
+                  ⚠️ Menor de edad - Autorización requerida
+                </p>
+              )}
+              {isValidBirthYear && !isMenorDeEdad && (
+                <p className="text-xs text-green-600 font-medium">
+                  ✓ Edad válida para participar
+                </p>
+              )}
+            </div>
           )}
         </div>
 
@@ -113,19 +142,20 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
         {/* Dorsal */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Número de Dorsal (Opcional)
+            Número de Dorsal *
           </label>
           <input
             name="dorsal"
             value={form.dorsal}
             onChange={handleChange}
             placeholder="Ingresa el número de dorsal"
-            type="text"
+            type="number"
             min="1"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            required
           />
           <p className="text-xs text-gray-500 mt-1">
-            Si no especifica un dorsal, se asignará automáticamente
+            Asigna un número de dorsal único para el participante
           </p>
         </div>
 
@@ -189,7 +219,7 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
       <div className="space-y-6 border-t pt-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Documentos Requeridos</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Comprobante */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -251,6 +281,43 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
             <p className="text-xs text-gray-500 mt-1">
               Solo JPG, PNG (máx. 5MB)
             </p>
+          </div>
+
+          {/* Autorización */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Autorización {isMenorDeEdad ? '*' : '(Opcional)'}
+            </label>
+            <div className="relative">
+              <input
+                name="autorizacion"
+                type="file"
+                onChange={handleChange}
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-orange-100 ${
+                  isMenorDeEdad 
+                    ? 'border-orange-300 focus:ring-orange-500 file:bg-orange-50 file:text-orange-700' 
+                    : 'border-gray-300 focus:ring-blue-500 file:bg-blue-50 file:text-blue-700'
+                }`}
+                required={isMenorDeEdad}
+              />
+              <Upload className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+            </div>
+            <div className="text-xs mt-1">
+              <p className="text-gray-500">JPG, PNG, PDF (máx. 5MB)</p>
+              {isMenorDeEdad && (
+                <div className="mt-1 p-2 bg-orange-50 rounded border border-orange-200">
+                  <p className="text-orange-700">
+                    <strong>Requerido:</strong> Documento firmado por padres/tutores autorizando la participación del menor de edad.
+                  </p>
+                </div>
+              )}
+              {!isMenorDeEdad && (
+                <p className="text-gray-500">
+                  Solo requerido para menores de 18 años
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>

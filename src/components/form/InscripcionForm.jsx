@@ -3,7 +3,7 @@ import { CheckCircle, AlertCircle } from 'lucide-react';
 import InscripcionFields from './InscripcionFields';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL|| 'http://localhost:10000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 
 export default function InscripcionForm() {
   const [form, setForm] = useState({
@@ -18,7 +18,8 @@ export default function InscripcionForm() {
     comunidad: '',
     comprobante: null,
     foto_anverso: null,
-    foto_reverso: null
+    foto_reverso: null,
+    autorizacion: null
   });
 
   const [categorias, setCategorias] = useState([]);
@@ -44,20 +45,17 @@ export default function InscripcionForm() {
           'Content-Type': 'application/json'
         };
         
-        const categoriasRes = await axios.get(`${API_BASE_URL}/api/categorias`, { 
+        const categoriasRes = await axios.get(`${API_BASE_URL}/api/inscripciones/categorias`, { 
           headers,
-          timeout: 10000 // 10 segundos de timeout
+          timeout: 10000
         });
         
         // Verificar si la respuesta tiene datos válidos
         if (categoriasRes.data && categoriasRes.data.data && Array.isArray(categoriasRes.data.data)) {
-          // Los datos vienen en formato { success: true, data: [...] }
           setCategorias(categoriasRes.data.data);
         } else if (categoriasRes.data && categoriasRes.data.categorias && Array.isArray(categoriasRes.data.categorias)) {
-          // Los datos vienen en formato { categorias: [...] }
           setCategorias(categoriasRes.data.categorias);
         } else if (categoriasRes.data && Array.isArray(categoriasRes.data)) {
-          // Los datos vienen directamente como array
           setCategorias(categoriasRes.data);
         } else {
           setCategorias([]);
@@ -65,15 +63,16 @@ export default function InscripcionForm() {
 
         // Intentar cargar equipos (opcional)
         try {
+          const equiposRes = await axios.get(`${API_BASE_URL}/api/inscripciones/equipos`, { 
+            headers,
+            timeout: 10000
+          });
           
           if (equiposRes.data && equiposRes.data.data && Array.isArray(equiposRes.data.data)) {
-            // Los datos vienen en formato { success: true, data: [...] }
             setEquipos(equiposRes.data.data);
           } else if (equiposRes.data && equiposRes.data.equipos && Array.isArray(equiposRes.data.equipos)) {
-            // Los datos vienen en formato { equipos: [...] }
             setEquipos(equiposRes.data.equipos);
           } else if (equiposRes.data && Array.isArray(equiposRes.data)) {
-            // Los datos vienen directamente como array
             setEquipos(equiposRes.data);
           } else {
             setEquipos([]);
@@ -83,7 +82,6 @@ export default function InscripcionForm() {
         }
         
       } catch (error) {
-        
         let errorMessage = 'Error cargando datos del servidor.';
         
         if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
@@ -121,7 +119,7 @@ export default function InscripcionForm() {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     
-    if (name === 'comprobante' || name === 'foto_anverso' || name === 'foto_reverso') {
+    if (name === 'comprobante' || name === 'foto_anverso' || name === 'foto_reverso' || name === 'autorizacion') {
       const file = files[0];
       if (file) {
         // Validar tamaño (5MB)
@@ -156,25 +154,55 @@ export default function InscripcionForm() {
     return age;
   };
 
+  const getBirthYear = (birthDate) => {
+    return new Date(birthDate).getFullYear();
+  };
+
+  const validateFormData = () => {
+    // Validar campos básicos requeridos
+    if (!form.nombre || !form.apellidos || !form.ci || !form.fecha_nacimiento || 
+        !form.categoria_id || !form.metodo_pago || !form.comunidad || !form.dorsal) {
+      showMessage('Todos los campos marcados con (*) son obligatorios', 'error');
+      return false;
+    }
+
+    // Validar archivos básicos requeridos
+    if (!form.comprobante || !form.foto_anverso || !form.foto_reverso) {
+      showMessage('Debe subir el comprobante de pago y las fotos del CI (anverso y reverso)', 'error');
+      return false;
+    }
+
+    // Validar año de nacimiento - solo se admiten personas nacidas desde 2011 en adelante
+    const birthYear = getBirthYear(form.fecha_nacimiento);
+    if (birthYear < 2011) {
+      showMessage('Solo se admiten participantes nacidos desde el año 2011 en adelante', 'error');
+      return false;
+    }
+
+    // Validar edad
+    const age = calculateAge(form.fecha_nacimiento);
+
+    // Validar autorización para menores de edad
+    if (age < 18 && !form.autorizacion) {
+      showMessage('Para participantes menores de 18 años es obligatorio subir la autorización firmada por los padres/tutores', 'error');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validar datos del formulario
+    if (!validateFormData()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Validaciones
-      if (!form.comprobante || !form.foto_anverso || !form.foto_reverso) {
-        showMessage('Debe subir el comprobante de pago y las fotos del CI (anverso y reverso)', 'error');
-        setLoading(false);
-        return;
-      }
-
-      // Validar edad
       const age = calculateAge(form.fecha_nacimiento);
-      if (age < 16) {
-        showMessage('Debe ser mayor de 16 años para participar', 'error');
-        setLoading(false);
-        return;
-      }
 
       // Crear FormData con todos los datos incluyendo los archivos
       const formData = new FormData();
@@ -191,23 +219,30 @@ export default function InscripcionForm() {
       formData.append('foto_anverso', form.foto_anverso);
       formData.append('foto_reverso', form.foto_reverso);
 
-      // Enviar datos al endpoint público
+      // Solo agregar autorización si existe
+      if (form.autorizacion) {
+        formData.append('autorizacion', form.autorizacion);
+      }
+
+      // Enviar datos al endpoint de admin (con autenticación)
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${API_BASE_URL}/api/inscripciones/participantes/publico`,
+        `${API_BASE_URL}/api/inscripciones/participantes`,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
-            // No incluir Authorization header para endpoint público
-          }
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+          timeout: 30000
         }
       );
 
-      showMessage(
-        `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} ha sido registrado correctamente.`,
-        'success'
-      );
+      const successMessage = age < 18 
+        ? `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} (menor de edad) ha sido registrado con el dorsal ${form.dorsal}. Documentación de autorización incluida.`
+        : `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} ha sido registrado con el dorsal ${form.dorsal}.`;
+
+      showMessage(successMessage, 'success');
 
       // Resetear formulario
       setForm({
@@ -222,7 +257,8 @@ export default function InscripcionForm() {
         comunidad: '',
         comprobante: null,
         foto_anverso: null,
-        foto_reverso: null
+        foto_reverso: null,
+        autorizacion: null
       });
 
       // Resetear inputs de archivo
@@ -231,7 +267,19 @@ export default function InscripcionForm() {
 
     } catch (error) {
       console.error('Error en inscripción:', error);
-      const errorMessage = error.response?.data?.error || 'Error en la inscripción';
+      
+      let errorMessage = 'Error en la inscripción';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'La inscripción está tardando demasiado. Por favor, inténtalo de nuevo.';
+      } else if (error.response?.status === 413) {
+        errorMessage = 'Los archivos son demasiado grandes. Por favor, reduce el tamaño e inténtalo de nuevo.';
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = `Error de conexión: ${error.message}`;
+      }
+      
       showMessage(errorMessage, 'error');
     } finally {
       setLoading(false);
@@ -310,7 +358,7 @@ export default function InscripcionForm() {
           <div className="mt-8 p-4 bg-lime-50 rounded-lg border border-lime-200">
             <p className="text-sm text-lime-700">
               <strong>Nota:</strong> La inscripción será verificada una vez que se suban todos los documentos requeridos. 
-              El número de dorsal será asignado automáticamente si no se especifica uno.
+              Asegúrate de asignar un número de dorsal único para cada participante.
             </p>
           </div>
         </>

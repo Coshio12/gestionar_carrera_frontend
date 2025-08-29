@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, AlertCircle, Upload } from 'lucide-react';
+import { CheckCircle, AlertCircle, Upload, Info } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../../context/ToastContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -16,7 +17,8 @@ export default function PublicInscripcionForm() {
     comunidad: '',
     comprobante: null,
     foto_anverso: null,
-    foto_reverso: null
+    foto_reverso: null,
+    autorizacion: null
   });
 
   const [categorias, setCategorias] = useState([]);
@@ -25,6 +27,9 @@ export default function PublicInscripcionForm() {
   const [dataLoading, setDataLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
+
+  // Usar el ToastContext
+  const { showSuccess, showError, showWarning } = useToast();
 
   // Cargar categorías y equipos al montar el componente
   useEffect(() => {
@@ -46,7 +51,7 @@ export default function PublicInscripcionForm() {
         
       } catch (error) {
         console.error('Error cargando datos:', error);
-        showMessage('Error cargando categorías y equipos. Verifica que el servidor esté funcionando.', 'error');
+        showError('Error cargando categorías y equipos. Verifica que el servidor esté funcionando.');
         setCategorias([]);
         setEquipos([]);
       } finally {
@@ -55,7 +60,7 @@ export default function PublicInscripcionForm() {
     };
 
     fetchData();
-  }, []);
+  }, [showError]);
 
   const showMessage = (text, type) => {
     setMessage(text);
@@ -69,19 +74,19 @@ export default function PublicInscripcionForm() {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     
-    if (name === 'comprobante' || name === 'foto_anverso' || name === 'foto_reverso') {
+    if (name === 'comprobante' || name === 'foto_anverso' || name === 'foto_reverso' || name === 'autorizacion') {
       const file = files[0];
       if (file) {
         // Validar tamaño (5MB)
         if (file.size > 5 * 1024 * 1024) {
-          showMessage('El archivo no debe superar 5MB', 'error');
+          showError('El archivo no debe superar 5MB');
           return;
         }
         
         // Validar tipo de archivo
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
         if (!allowedTypes.includes(file.type)) {
-          showMessage('Solo se permiten archivos JPG, PNG o PDF', 'error');
+          showError('Solo se permiten archivos JPG, PNG o PDF');
           return;
         }
       }
@@ -104,24 +109,59 @@ export default function PublicInscripcionForm() {
     return age;
   };
 
+  const getBirthYear = (birthDate) => {
+    return new Date(birthDate).getFullYear();
+  };
+
+  const validateFormData = () => {
+    // Validar campos básicos requeridos
+    if (!form.nombre || !form.apellidos || !form.ci || !form.fecha_nacimiento || 
+        !form.categoria_id || !form.metodo_pago || !form.comunidad) {
+      showError('Todos los campos marcados con (*) son obligatorios');
+      return false;
+    }
+
+    // Validar archivos básicos requeridos
+    if (!form.comprobante || !form.foto_anverso || !form.foto_reverso) {
+      showError('Debe subir el comprobante de pago y las fotos del CI (anverso y reverso)');
+      return false;
+    }
+
+    // Validar año de nacimiento - solo se admiten personas nacidas desde 2011 en adelante
+    const birthYear = getBirthYear(form.fecha_nacimiento);
+    if (birthYear < 2011) {
+      showError('Solo se admiten participantes nacidos desde el año 2011 en adelante');
+      return false;
+    }
+
+    // Validar edad
+    const age = calculateAge(form.fecha_nacimiento);
+
+    // Validar autorización para menores de edad
+    if (age < 18 && !form.autorizacion) {
+      showError('Para participantes menores de 18 años es obligatorio subir la autorización firmada por los padres/tutores');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validar datos del formulario
+    if (!validateFormData()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Validaciones
-      if (!form.comprobante || !form.foto_anverso || !form.foto_reverso) {
-        showMessage('Debe subir el comprobante de pago y las fotos del CI (anverso y reverso)', 'error');
-        setLoading(false);
-        return;
-      }
-
-      // Validar edad
       const age = calculateAge(form.fecha_nacimiento);
-      if (age < 16) {
-        showMessage('Debe ser mayor de 16 años para participar', 'error');
-        setLoading(false);
-        return;
+      
+      // Mostrar advertencia adicional para menores de edad
+      if (age < 18) {
+        showWarning('Procesando inscripción de menor de edad. Verificando documentación...');
       }
 
       // Crear FormData con todos los datos incluyendo los archivos
@@ -137,6 +177,11 @@ export default function PublicInscripcionForm() {
       formData.append('comprobante', form.comprobante);
       formData.append('foto_anverso', form.foto_anverso);
       formData.append('foto_reverso', form.foto_reverso);
+      
+      // Solo agregar autorización si existe
+      if (form.autorizacion) {
+        formData.append('autorizacion', form.autorizacion);
+      }
 
       // Enviar datos
       const response = await axios.post(
@@ -145,14 +190,20 @@ export default function PublicInscripcionForm() {
         {
           headers: {
             'Content-Type': 'multipart/form-data'
-          }
+          },
+          timeout: 30000 // 30 segundos de timeout
         }
       );
 
-      showMessage(
-        `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} ha sido registrado. El número de dorsal será asignado posteriormente.`,
-        'success'
-      );
+      // Mostrar mensaje de éxito con ToastContext
+      const successMessage = age < 18 
+        ? `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} (menor de edad) ha sido registrado. El número de dorsal será asignado posteriormente. Documentación de autorización incluida.`
+        : `¡Inscripción exitosa! ${form.nombre} ${form.apellidos} ha sido registrado. El número de dorsal será asignado posteriormente.`;
+      
+      showSuccess(successMessage);
+
+      // También mostrar mensaje en la interfaz
+      showMessage(successMessage, 'success');
 
       // Resetear formulario
       setForm({
@@ -166,7 +217,8 @@ export default function PublicInscripcionForm() {
         comunidad: '',
         comprobante: null,
         foto_anverso: null,
-        foto_reverso: null
+        foto_reverso: null,
+        autorizacion: null
       });
 
       // Resetear inputs de archivo
@@ -175,12 +227,31 @@ export default function PublicInscripcionForm() {
 
     } catch (error) {
       console.error('Error en inscripción:', error);
-      const errorMessage = error.response?.data?.error || 'Error en la inscripción';
+      
+      let errorMessage = 'Error en la inscripción';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'La inscripción está tardando demasiado. Por favor, inténtalo de nuevo.';
+      } else if (error.response?.status === 413) {
+        errorMessage = 'Los archivos son demasiado grandes. Por favor, reduce el tamaño e inténtalo de nuevo.';
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = `Error de conexión: ${error.message}`;
+      }
+      
+      showError(errorMessage);
       showMessage(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
   };
+
+  // Calcular edad actual para mostrar advertencias
+  const currentAge = form.fecha_nacimiento ? calculateAge(form.fecha_nacimiento) : null;
+  const currentBirthYear = form.fecha_nacimiento ? getBirthYear(form.fecha_nacimiento) : null;
+  const isMenorDeEdad = currentAge && currentAge < 18;
+  const isValidBirthYear = currentBirthYear && currentBirthYear >= 2011;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-4 md:mx-auto max-w-6xl">
@@ -191,12 +262,27 @@ export default function PublicInscripcionForm() {
         <p className="text-sm sm:text-base text-gray-600 px-2">
           Completa todos los campos para confirmar tu participación
         </p>
-        {/* Nota final responsive */}
-          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
-            <p className="text-xs sm:text-sm text-red-700 leading-relaxed">
-              <strong>Nota:</strong>Si desea inscribir a un menor de edad. Los Organizadores NO SE RESPONSABILIZAN por los accidentes del ciclista antes, durante y despues de la Competencia, siendo de total responsabilidad del ciclista y de los padres y/o tutores del menor de edad, cualquier inconveniente que sufrieran y declaro estar en conformidad y de pleno acuerdo con todos los terminos establecidos en la reglamentacion de la competencia descritos en la convocatoria, debera adjuntar una autorizacion firmada por los padres y/o tutores del menor de edad.
-            </p>
-          </div>
+
+        {/* Nota sobre el formulario */}
+        <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
+          <p className="text-xs sm:text-sm text-lime-700 leading-relaxed">
+            <strong>Nota:</strong> Esperar mientras se carga el formulario y cuando se mande la inscripción
+          </p>
+        </div>
+
+        {/* Nota sobre edad mínima */}
+        <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
+            <strong>Requisito de Edad:</strong> Solo se admiten participantes nacidos desde el año 2011 en adelante.
+          </p>
+        </div>
+
+        {/* Nota accidentes responsive */}
+        <div className="mt-4 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
+          <p className="text-xs sm:text-sm text-red-700 leading-relaxed">
+            <strong>Nota:</strong> Si desea inscribir a un menor de edad. Los Organizadores NO SE RESPONSABILIZAN por los accidentes del ciclista antes, durante y después de la Competencia, siendo de total responsabilidad del ciclista y de los padres y/o tutores del menor de edad, cualquier inconveniente que sufrieran y declaro estar en conformidad y de pleno acuerdo con todos los términos establecidos en la reglamentación de la competencia descritos en la convocatoria, deberá adjuntar una autorización firmada por los padres y/o tutores del menor de edad.
+          </p>
+        </div>
       </div>
 
       {/* Loader inicial */}
@@ -287,14 +373,32 @@ export default function PublicInscripcionForm() {
                   value={form.fecha_nacimiento}
                   onChange={handleChange}
                   type="date"
-                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
+                  min="2011-01-01"
+                  max={new Date().toISOString().split('T')[0]}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                   required
                 />
                 {form.fecha_nacimiento && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    Edad: {calculateAge(form.fecha_nacimiento)} años
-                  </p>
+                  <div className="mt-1">
+                    <p className="text-xs text-gray-600">
+                      Edad: {calculateAge(form.fecha_nacimiento)} años (Año: {getBirthYear(form.fecha_nacimiento)})
+                    </p>
+                    {!isValidBirthYear && (
+                      <p className="text-xs text-red-600 font-medium">
+                        ❌ No cumple con el requisito de edad (debe ser nacido desde 2011)
+                      </p>
+                    )}
+                    {isValidBirthYear && isMenorDeEdad && (
+                      <p className="text-xs text-orange-600 font-medium">
+                        ⚠️ Menor de edad - Autorización requerida
+                      </p>
+                    )}
+                    {isValidBirthYear && !isMenorDeEdad && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Edad válida para participar
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -373,7 +477,7 @@ export default function PublicInscripcionForm() {
             <div className="space-y-4 sm:space-y-6 border-t pt-4 sm:pt-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Documentos Requeridos</h3>
               
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Comprobante */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -436,16 +540,53 @@ export default function PublicInscripcionForm() {
                     Solo JPG, PNG (máx. 5MB)
                   </p>
                 </div>
+
+                {/* Autorización para menores de edad */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Autorización de Padres/Tutores {isMenorDeEdad ? '*' : '(Opcional)'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      name="autorizacion"
+                      type="file"
+                      onChange={handleChange}
+                      accept="image/jpeg,image/jpg,image/png,application/pdf"
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition file:mr-2 sm:file:mr-3 file:py-1 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-full file:border-0 file:text-xs sm:file:text-sm file:font-semibold hover:file:bg-orange-100 ${
+                        isMenorDeEdad 
+                          ? 'border-orange-300 focus:ring-orange-500 file:bg-orange-50 file:text-orange-700' 
+                          : 'border-gray-300 focus:ring-green-500 file:bg-purple-50 file:text-purple-700'
+                      }`}
+                      required={isMenorDeEdad}
+                    />
+                    <Upload className="absolute right-2 sm:right-3 top-2 sm:top-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
+                  </div>
+                  <div className="text-xs mt-1">
+                    <p className="text-gray-500">JPG, PNG, PDF (máx. 5MB)</p>
+                    {isMenorDeEdad && (
+                      <div className="mt-1 p-2 bg-orange-50 rounded border border-orange-200">
+                        <div className="flex items-start gap-2">
+                          <Info className="w-3 h-3 text-orange-600 mt-0.5 flex-shrink-0" />
+                          <p className="text-orange-700">
+                            <strong>Requerido:</strong> Documento firmado por padres/tutores autorizando la participación del menor de edad.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {!isMenorDeEdad && (
+                      <p className="text-gray-500">
+                        Solo requerido para menores de 18 años
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className='w-2xsm sm:w-3xs md:w-4xs lg:w-5xs xl:w-6xs 2xl:w-7xs mx-auto mt-4 sm:mt-6'>
-              <img src="" alt="codigo QR inscripcion" className="object-contain h-48 sm:h-64 md:h-50 lg:h-50 w-full mx-auto border-4 border-white shadow-lg" />
-            </div>
             {/* Botón de envío responsive */}
             <div className="text-center pt-4 sm:pt-6">
               <button 
-                disabled={loading} 
+                disabled={loading || (form.fecha_nacimiento && !isValidBirthYear)} 
                 type="submit" 
                 className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-bold text-base sm:text-lg rounded-lg hover:from-green-700 hover:to-green-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg min-w-[200px]"
               >

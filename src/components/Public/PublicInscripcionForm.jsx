@@ -129,10 +129,10 @@ export default function PublicInscripcionForm() {
       return false;
     }
 
-    // Validar año de nacimiento - solo se admiten personas nacidas desde 2011 en adelante
+    // CORREGIDO: Validar año de nacimiento - permitir desde 1900 hasta 2011
     const birthYear = getBirthYear(form.fecha_nacimiento);
-    if (birthYear > 2011) {
-      showError('Solo se admiten participantes nacidos desde el año 2011 en adelante');
+    if (birthYear < 1900 || birthYear > 2011) {
+      showError('Solo se admiten participantes nacidos entre los años 1900 y 2011');
       return false;
     }
 
@@ -253,7 +253,8 @@ export default function PublicInscripcionForm() {
   const currentAge = form.fecha_nacimiento ? calculateAge(form.fecha_nacimiento) : null;
   const currentBirthYear = form.fecha_nacimiento ? getBirthYear(form.fecha_nacimiento) : null;
   const isMenorDeEdad = currentAge && currentAge < 18;
-  const isValidBirthYear = currentBirthYear && currentBirthYear <= 2011;
+  // CORREGIDO: Permitir años desde 1900 hasta 2011
+  const isValidBirthYear = currentBirthYear && currentBirthYear >= 1900 && currentBirthYear <= 2011;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-4 md:mx-auto max-w-6xl">
@@ -272,10 +273,10 @@ export default function PublicInscripcionForm() {
           </p>
         </div>
 
-        {/* Nota sobre edad mínima */}
+        {/* CORREGIDO: Nota sobre edad */}
         <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
-            <strong>Requisito de Edad:</strong> Solo se admiten participantes nacidos hasta el año 2011 en adelante.
+            <strong>Requisito de Edad:</strong> Solo se admiten participantes nacidos entre los años 1900 y 2011 (ambos incluidos).
           </p>
         </div>
 
@@ -375,7 +376,8 @@ export default function PublicInscripcionForm() {
                   value={form.fecha_nacimiento}
                   onChange={handleChange}
                   type="date"
-                  max={new Date().toISOString().split('T')[0]}
+                  min="1900-01-01"
+                  max="2011-12-31"
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                   required
                 />
@@ -386,7 +388,7 @@ export default function PublicInscripcionForm() {
                     </p>
                     {!isValidBirthYear && (
                       <p className="text-xs text-red-600 font-medium">
-                        ❌ No cumple con el requisito de edad (Nacidos hasta el 2011)
+                        ❌ No cumple con el requisito de edad (Nacidos entre 1900 y 2011)
                       </p>
                     )}
                     {isValidBirthYear && isMenorDeEdad && (
@@ -585,7 +587,7 @@ export default function PublicInscripcionForm() {
             </div>
 
             <div className='text-center text-gray-600 text-sm sm:text-base'>
-                    <img
+              <img
                 src={QR}
                 alt="Codigo QR para pago"
                 className="object-contain max-h-20 sm:max-h-24 md:max-h-28 max-w-full mx-auto border-2 sm:border-4 border-white shadow-lg rounded"
@@ -620,6 +622,6 @@ export default function PublicInscripcionForm() {
           </div>
         </>
       )}
-    </div>    
+    </div>
   );
 }

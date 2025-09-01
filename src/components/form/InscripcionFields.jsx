@@ -1,4 +1,4 @@
-import { Calendar, Upload } from 'lucide-react';
+import { Calendar, Upload, Info } from 'lucide-react';
 
 export default function InscripcionFields({ form, handleChange, categorias, equipos = [], loading = false }) {
   const calculateAge = (birthDate) => {
@@ -32,7 +32,8 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
   const currentAge = form.fecha_nacimiento ? calculateAge(form.fecha_nacimiento) : null;
   const currentBirthYear = form.fecha_nacimiento ? getBirthYear(form.fecha_nacimiento) : null;
   const isMenorDeEdad = currentAge !== 'N/A' && currentAge < 18;
-  const isValidBirthYear = currentBirthYear && currentBirthYear <= 2011;
+  // CORREGIDO: Permitir años desde 1900 hasta 2011 (fechas lógicas)
+  const isValidBirthYear = currentBirthYear && currentBirthYear >= 1900 && currentBirthYear <= 2011;
 
   return (
     <div className="space-y-6">
@@ -93,8 +94,8 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
               value={form.fecha_nacimiento}
               onChange={handleChange}
               type="date"
-              min="2011-01-01"
-              max={new Date().toISOString().split('T')[0]}
+              min="1900-01-01"
+              max="2011-12-31"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               required
             />
@@ -107,7 +108,7 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
               </p>
               {!isValidBirthYear && (
                 <p className="text-xs text-red-600 font-medium">
-                  ⚠ No cumple con el requisito de edad (debe ser nacido desde 2011)
+                  ❌ No cumple con el requisito de edad (debe ser nacido entre 1900 y 2011)
                 </p>
               )}
               {isValidBirthYear && isMenorDeEdad && (
@@ -286,7 +287,7 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
           {/* Autorización */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Autorización {isMenorDeEdad ? '*' : '(Opcional)'}
+              Autorización de Padres/Tutores {isMenorDeEdad ? '*' : '(Opcional)'}
             </label>
             <div className="relative">
               <input
@@ -307,9 +308,12 @@ export default function InscripcionFields({ form, handleChange, categorias, equi
               <p className="text-gray-500">JPG, PNG, PDF (máx. 5MB)</p>
               {isMenorDeEdad && (
                 <div className="mt-1 p-2 bg-orange-50 rounded border border-orange-200">
-                  <p className="text-orange-700">
-                    <strong>Requerido:</strong> Documento firmado por padres/tutores autorizando la participación del menor de edad.
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <Info className="w-3 h-3 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-orange-700">
+                      <strong>Requerido:</strong> Documento firmado por padres/tutores autorizando la participación del menor de edad.
+                    </p>
+                  </div>
                 </div>
               )}
               {!isMenorDeEdad && (

@@ -174,7 +174,7 @@ export default function InscripcionForm() {
 
     // Validar año de nacimiento - solo se admiten personas nacidas desde 2011 en adelante
     const birthYear = getBirthYear(form.fecha_nacimiento);
-    if (birthYear < 2011) {
+    if (birthYear >= 2011) {
       showMessage('Solo se admiten participantes nacidos desde el año 2011 en adelante', 'error');
       return false;
     }

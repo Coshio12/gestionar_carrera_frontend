@@ -3,6 +3,8 @@ import { CheckCircle, AlertCircle, Upload, Info } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
 
+import QR from '../../assets/patrocinios/TS360.jpg';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function PublicInscripcionForm() {
@@ -129,7 +131,7 @@ export default function PublicInscripcionForm() {
 
     // Validar año de nacimiento - solo se admiten personas nacidas desde 2011 en adelante
     const birthYear = getBirthYear(form.fecha_nacimiento);
-    if (birthYear < 2011) {
+    if (birthYear > 2011) {
       showError('Solo se admiten participantes nacidos desde el año 2011 en adelante');
       return false;
     }
@@ -251,7 +253,7 @@ export default function PublicInscripcionForm() {
   const currentAge = form.fecha_nacimiento ? calculateAge(form.fecha_nacimiento) : null;
   const currentBirthYear = form.fecha_nacimiento ? getBirthYear(form.fecha_nacimiento) : null;
   const isMenorDeEdad = currentAge && currentAge < 18;
-  const isValidBirthYear = currentBirthYear && currentBirthYear >= 2011;
+  const isValidBirthYear = currentBirthYear && currentBirthYear <= 2011;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-4 md:mx-auto max-w-6xl">
@@ -273,7 +275,7 @@ export default function PublicInscripcionForm() {
         {/* Nota sobre edad mínima */}
         <div className="mt-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
-            <strong>Requisito de Edad:</strong> Solo se admiten participantes nacidos desde el año 2011 en adelante.
+            <strong>Requisito de Edad:</strong> Solo se admiten participantes nacidos hasta el año 2011 en adelante.
           </p>
         </div>
 
@@ -373,7 +375,6 @@ export default function PublicInscripcionForm() {
                   value={form.fecha_nacimiento}
                   onChange={handleChange}
                   type="date"
-                  min="2011-01-01"
                   max={new Date().toISOString().split('T')[0]}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                   required
@@ -385,7 +386,7 @@ export default function PublicInscripcionForm() {
                     </p>
                     {!isValidBirthYear && (
                       <p className="text-xs text-red-600 font-medium">
-                        ❌ No cumple con el requisito de edad (debe ser nacido desde 2011)
+                        ❌ No cumple con el requisito de edad (Nacidos hasta el 2011)
                       </p>
                     )}
                     {isValidBirthYear && isMenorDeEdad && (
@@ -405,7 +406,7 @@ export default function PublicInscripcionForm() {
               {/* Comunidad */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Comunidad *
+                  Comunidad / Ciudad *
                 </label>
                 <input
                   name="comunidad"
@@ -581,6 +582,14 @@ export default function PublicInscripcionForm() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className='text-center text-gray-600 text-sm sm:text-base'>
+                    <img
+                src={QR}
+                alt="Codigo QR para pago"
+                className="object-contain max-h-20 sm:max-h-24 md:max-h-28 max-w-full mx-auto border-2 sm:border-4 border-white shadow-lg rounded"
+              />
             </div>
 
             {/* Botón de envío responsive */}

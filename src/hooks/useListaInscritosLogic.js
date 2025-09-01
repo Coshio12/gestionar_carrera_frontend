@@ -28,6 +28,15 @@ export const useListaInscritosLogic = () => {
   });
 
   const modalStates = useModalStates();
+
+  // Estados de modales para documentos
+  const [documentModalState, setDocumentModalState] = useState({
+    showDocumentModal: false,
+    selectedDocument: null,
+    documentType: null,
+    selectedParticipanteName: null
+  });
+
   const { searchTerm, setSearchTerm, filteredParticipants } = useParticipantSearch(participants);
 
   const itemsPerPage = 6;
@@ -184,6 +193,36 @@ export const useListaInscritosLogic = () => {
     }
   }, [modalStates]);
 
+  const handleViewDocumento = useCallback((participante, documentType) => {
+    let documentPath = null;
+    
+    switch (documentType) {
+      case 'anverso':
+        documentPath = participante.foto_anverso_url;
+        console.log(documentPath)
+        break;
+      case 'reverso':
+        documentPath = participante.foto_reverso_url;
+        console.log(documentPath)
+        break;
+      case 'autorizacion':
+        documentPath = participante.autorizacion_url;
+        console.log(documentPath)
+        break;
+      default:
+        return;
+    }
+    
+    if (documentPath) {
+      setDocumentModalState({
+        showDocumentModal: true,
+        selectedDocument: documentPath,
+        documentType: documentType,
+        selectedParticipanteName: `${participante.nombre} ${participante.apellidos}`
+      });
+    }
+  }, []);
+
   const handleCloseModal = useCallback(() => {
     modalStates.closeEditModal();
   }, [modalStates]);
@@ -195,6 +234,15 @@ export const useListaInscritosLogic = () => {
   const handleCloseComprobanteModal = useCallback(() => {
     modalStates.closeComprobanteModal();
   }, [modalStates]);
+
+  const handleCloseDocumentModal = useCallback(() => {
+    setDocumentModalState({
+      showDocumentModal: false,
+      selectedDocument: null,
+      documentType: null,
+      selectedParticipanteName: null
+    });
+  }, []);
 
   const handleParticipanteUpdated = useCallback((updatedParticipante) => {
     
@@ -271,15 +319,20 @@ export const useListaInscritosLogic = () => {
     // Estados de modales
     modalStates,
     
+    // Estados del modal de documentos
+    documentModalState,
+    
     // Handlers
     handleSearchChange,
     handleEditClick,
     handleDeleteClick,
     handleConfirmDelete,
     handleViewComprobante,
+    handleViewDocumento,
     handleCloseModal,
     handleCloseDeleteModal,
     handleCloseComprobanteModal,
+    handleCloseDocumentModal,
     handleParticipanteUpdated,
     handlePrev,
     handleNext,

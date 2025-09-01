@@ -18,6 +18,7 @@ const RegistroRapido = () => {
     setAplicarBonificacion,
     loading,
     participante,
+    setParticipante,
     tiemposRecientes,
     buscarParticipante,
     registrarTiempo,
@@ -28,22 +29,106 @@ const RegistroRapido = () => {
   const dorsalRef = useRef(null);
   const tiempoRef = useRef(null);
   const posicionRef = useRef(null);
+  const isInitialMount = useRef(true);
 
-  // Focus automático al dorsal cuando cambie la etapa
+  // Focus automático al dorsal SOLO cuando se carga por primera vez y hay etapa seleccionada
   useEffect(() => {
-    if (etapaSeleccionada && dorsalRef.current) {
+    if (isInitialMount.current && etapaSeleccionada && dorsalRef.current) {
       dorsalRef.current.focus();
+      isInitialMount.current = false;
     }
   }, [etapaSeleccionada]);
 
+  // Función para formatear tiempo automáticamente
+  const formatTimeInput = (value) => {
+    // Remover todo lo que no sea número o punto
+    const numbersOnly = value.replace(/[^\d.]/g, '');
+    
+    // Si está vacío, retornar vacío
+    if (!numbersOnly) return '';
+    
+    // Separar parte entera y decimales
+    const parts = numbersOnly.split('.');
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+    
+    let formatted = '';
+    
+    // Formatear según la longitud
+    if (integerPart.length <= 2) {
+      // MM (minutos) - hasta 2 dígitos
+      formatted = integerPart;
+    } else if (integerPart.length <= 4) {
+      // MM:SS - 3-4 dígitos
+      const minutes = integerPart.slice(0, -2);
+      const seconds = integerPart.slice(-2);
+      formatted = `${minutes}:${seconds}`;
+    } else if (integerPart.length <= 6) {
+      // HH:MM:SS - 5-6 dígitos
+      const hours = integerPart.slice(0, -4);
+      const minutes = integerPart.slice(-4, -2);
+      const seconds = integerPart.slice(-2);
+      formatted = `${hours}:${minutes}:${seconds}`;
+    } else {
+      // Más de 6 dígitos, tomar solo los primeros 6
+      const truncated = integerPart.slice(0, 6);
+      const hours = truncated.slice(0, -4);
+      const minutes = truncated.slice(-4, -2);
+      const seconds = truncated.slice(-2);
+      formatted = `${hours}:${minutes}:${seconds}`;
+    }
+    
+    // Agregar decimales si existen
+    if (decimalPart !== undefined) {
+      // Limitar a 2 decimales máximo
+      const limitedDecimals = decimalPart.slice(0, 2);
+      formatted += `.${limitedDecimals}`;
+    }
+    
+    return formatted;
+  };
+
+  // Manejar cambio de etapa con prevención de auto-selección
+  const handleEtapaChange = (e) => {
+    const selectedValue = e.target.value;
+    setEtapaSeleccionada(selectedValue);
+    
+    // Solo hacer focus si realmente se selecciona una etapa válida
+    if (selectedValue && dorsalRef.current) {
+      // Usar setTimeout para evitar conflictos con el re-render
+      setTimeout(() => {
+        if (dorsalRef.current) {
+          dorsalRef.current.focus();
+        }
+      }, 100);
+    }
+  };
+
   const handleDorsalChange = (e) => {
     const valor = e.target.value;
-    setDorsal(valor);
+    
+    // Solo permitir números en el dorsal
+    const numbersOnly = valor.replace(/[^\d]/g, '');
+    
+    // Limitar a 3 dígitos máximo
+    const limitedValue = numbersOnly.slice(0, 3);
+    
+    setDorsal(limitedValue);
+
+    // Limpiar participante inmediatamente al cambiar dorsal
+    setParticipante(null);
 
     // Buscar participante cuando el dorsal tenga al menos 1 carácter
-    if (valor.trim()) {
-      buscarParticipante(valor.trim());
+    if (limitedValue.trim()) {
+      buscarParticipante(limitedValue);
     }
+  };
+
+  // Función mejorada para el onChange del tiempo
+  const handleTiempoChange = (e) => {
+    const inputValue = e.target.value;
+    const formattedValue = formatTimeInput(inputValue);
+    setTiempo(formattedValue);
   };
 
   const handleRegistrarTiempo = async () => {
@@ -67,6 +152,7 @@ const RegistroRapido = () => {
       }
     }
   };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -93,14 +179,14 @@ const RegistroRapido = () => {
             <div className="space-y-6">
               <h2 className="text-lg font-semibold">Nuevo Registro</h2>
 
-              {/* Selección de etapa */}
+              {/* Selección de etapa - CORREGIDO */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Etapa
                 </label>
                 <select
                   value={etapaSeleccionada}
-                  onChange={(e) => setEtapaSeleccionada(e.target.value)}
+                  onChange={handleEtapaChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Seleccionar etapa...</option>
@@ -123,7 +209,7 @@ const RegistroRapido = () => {
                   value={dorsal}
                   onChange={handleDorsalChange}
                   onKeyPress={(e) => handleKeyPress(e, tiempoRef)}
-                  placeholder="Ingrese el dorsal..."
+                  placeholder="Ingrese el dorsal (ej: 012)..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
 
@@ -137,7 +223,7 @@ const RegistroRapido = () => {
                       </span>
                     </div>
                     <div className="text-sm text-green-600">
-                      Categoría:{" "}
+                      Dorsal: {participante.dorsal} | Categoría:{" "}
                       {participante.categorias?.nombre || "Sin categoría"}
                     </div>
                   </div>
@@ -148,89 +234,38 @@ const RegistroRapido = () => {
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="h-4 w-4 text-red-600" />
                       <span className="text-red-800">
-                        Participante no encontrado
+                        Participante no encontrado con dorsal: {dorsal.padStart(3, '0')}
                       </span>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Tiempo */}
+              {/* Tiempo con formato automático */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tiempo (MM:SS.CC o HH:MM:SS.CC)
+                  Tiempo (formato automático)
                 </label>
                 <input
                   ref={tiempoRef}
                   type="text"
                   value={tiempo}
-                  onChange={(e) => setTiempo(e.target.value)}
+                  onChange={handleTiempoChange}
                   onKeyPress={(e) => handleKeyPress(e, posicionRef)}
-                  placeholder="ej: 45:23.50"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Solo números: 452350 → 45:23.50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-lg"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Formatos válidos: 45:23.50, 1:45:23.50
-                </p>
-              </div>
-
-              {/* Posición y bonificación */}
-              {/* <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Posición (opcional)
-                </label>
-                <input
-                  ref={posicionRef}
-                  type="number"
-                  value={posicion}
-                  onChange={(e) => setPosicion(e.target.value)}
-                  onKeyPress={(e) => handleKeyPress(e, null)}
-                  placeholder="1, 2, 3..."
-                  min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bonificación
-                </label>
-                <div className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="checkbox"
-                    id="bonificacion"
-                    checked={aplicarBonificacion}
-                    onChange={(e) => setAplicarBonificacion(e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="bonificacion"
-                    className="text-sm text-gray-700"
-                  >
-                    Aplicar bonificación
-                  </label>
-                </div>
-              </div>
-            </div> */}
-
-              {/* Tabla de bonificaciones */}
-              {/* {aplicarBonificacion && (
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <h4 className="font-medium text-yellow-800 mb-2">
-                  Bonificaciones:
-                </h4>
-                <div className="text-sm text-yellow-700">
-                  <div className="grid grid-cols-5 gap-2">
-                    <div>1°: -10s</div>
-                    <div>2°: -6s</div>
-                    <div>3°: -4s</div>
-                    <div>4°: -2s</div>
-                    <div>5°: -1s</div>
+                <div className="mt-1 space-y-1">
+                  <p className="text-xs text-gray-500">
+                    Escriba solo números. Se formatea automáticamente:
+                  </p>
+                  <div className="text-xs text-blue-600 grid grid-cols-1 sm:grid-cols-3 gap-1">
+                    <span>• 4523 → 45:23</span>
+                    <span>• 452350 → 45:23.50</span>
+                    <span>• 1452350 → 1:45:23.50</span>
                   </div>
                 </div>
               </div>
-            )} */}
 
               {/* Botón de registro */}
               <button
@@ -257,9 +292,46 @@ const RegistroRapido = () => {
                 )}
               </button>
             </div>
-
-            {/* Registros recientes */}
           </div>
+
+          {/* Tiempos recientes */}
+          {tiemposRecientes.length > 0 && (
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+                <Trophy className="h-5 w-5 text-yellow-600" />
+                <span>Registros Recientes</span>
+              </h2>
+              <div className="space-y-2">
+                {tiemposRecientes.map((registro, index) => (
+                  <div
+                    key={registro.id || index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                        #{registro.dorsal}
+                      </span>
+                      <span className="font-medium">{registro.participante}</span>
+                      <span className="text-gray-500 text-sm">{registro.etapa}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono text-lg font-semibold">
+                        {registro.tiempo}
+                      </span>
+                      {registro.bonificacion && (
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                          -{registro.bonificacion}
+                        </span>
+                      )}
+                      <span className="text-gray-400 text-xs">
+                        {registro.timestamp}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -35,34 +35,35 @@ export const useParticipantsApi = ({ showError, showSuccess }) => {
   }, [showError]);
 
   const fetchParticipants = useCallback(async (categoriaId) => {
-    const { data, error } = await supabase
-      .from("participantes")
-      .select(`
-        id, 
-        nombre, 
-        apellidos, 
-        ci, 
-        dorsal, 
-        categoria_id, 
-        equipo, 
-        metodo_pago, 
-        comprobante_url,
-        comunidad,
-        foto_anverso_url,
-        foto_reverso_url,
-        fecha_nacimiento
-      `)
-      .eq("categoria_id", categoriaId)
-      .order("dorsal", { ascending: true, nullsLast: true });
+  const { data, error } = await supabase
+    .from("participantes")
+    .select(`
+      id, 
+      nombre, 
+      apellidos, 
+      ci, 
+      dorsal, 
+      categoria_id, 
+      equipo, 
+      metodo_pago, 
+      comprobante_url,
+      comunidad,
+      foto_anverso_url,
+      foto_reverso_url,
+      fecha_nacimiento,
+      autorizacion_url
+    `)
+    .eq("categoria_id", categoriaId)
+    .order("dorsal", { ascending: true, nullsLast: true });
 
-    if (error) {
-      console.error("Error fetching participants:", error.message);
-      showError('Error cargando participantes');
-      return [];
-    }
-    
-    return data || [];
-  }, [showError]);
+  if (error) {
+    console.error("Error fetching participants:", error.message);
+    showError('Error cargando participantes');
+    return [];
+  }
+  
+  return data || [];
+}, [showError]);
 
   const deleteParticipant = useCallback(async (participantId) => {
     const token = localStorage.getItem('token');

@@ -50,34 +50,35 @@ export const useRegistroRapido = () => {
     }
   }, [showError]);
 
-  // Buscar participante por dorsal
-  const buscarParticipante = useCallback(async (dorsalBuscado) => {
-    if (!dorsalBuscado) {
+// Buscar participante por dorsal - RUTAS CORREGIDAS
+const buscarParticipante = useCallback(async (dorsalInput) => {
+  try {
+    if (!dorsalInput || dorsalInput.trim() === '') {
       setParticipante(null);
       return;
     }
+    
+    const dorsalFormateado = dorsalInput.toString().padStart(3, '0');
+    
+    // ESTA es la URL correcta (plural)
+    const response = await fetch(`${API_URL}/api/inscripciones/participantes/dorsal/${dorsalFormateado}`, {
+      headers: getAuthHeaders()
+    });
 
-    try {
-      const response = await fetch(`${API_URL}/api/tiempos/participantes/dorsal/${dorsalBuscado}`, {
-        headers: getAuthHeaders()
-      });
-      
-      if (response.status === 404) {
-        setParticipante(null);
-        showInfo(`No se encontró participante con dorsal ${dorsalBuscado}`);
-        return;
-      }
-      
-      if (!response.ok) throw new Error('Error buscando participante');
-      
+    if (response.ok) {
       const data = await response.json();
-      setParticipante(data.success ? data.participante : null);
-      
-    } catch (error) {
-      showError('Error buscando participante: ' + error.message);
+      setParticipante(data.participante);
+    } else if (response.status === 404) {
+      setParticipante(null);
+    } else {
+      console.error(`Error buscando participante: ${response.status}`);
       setParticipante(null);
     }
-  }, [showError, showInfo]);
+  } catch (error) {
+    console.error('Error de red buscando participante:', error);
+    setParticipante(null);
+  }
+}, []);
 
   // Convertir tiempo string a milisegundos
   const convertirTiempoAMs = useCallback((tiempoStr) => {
@@ -165,7 +166,7 @@ export const useRegistroRapido = () => {
       // Agregar a tiempos recientes
       const nuevoRegistro = {
         id: result.tiempo.id,
-        dorsal: dorsal,
+        dorsal: dorsal.padStart(3, '0'), // Mostrar con formato completo
         participante: `${participante.nombre} ${participante.apellidos}`,
         tiempo: formatearTiempo(tiempoMs),
         etapa: etapas.find(e => e.id === parseInt(etapaSeleccionada))?.nombre,
@@ -220,6 +221,7 @@ export const useRegistroRapido = () => {
     setAplicarBonificacion,
     loading,
     participante,
+    setParticipante, // EXPORTADO CORRECTAMENTE
     tiemposRecientes,
     
     // Funciones

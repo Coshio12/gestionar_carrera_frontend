@@ -8,6 +8,7 @@ import Pagination from "../components/ListaInscritos/Pagination";
 import EditParticipanteModal from "../components/form/EditParticipanteModal";
 import ComprobanteModal from "../components/ListaInscritos/ComprobanteModal";
 import ConfirmDeleteModal from "../components/ListaInscritos/ConfirmDeleteModal";
+import DocumentosModal from "../components/ListaInscritos/DocumentosModal";
 
 export default function ListaInscritos() {
   const {
@@ -35,6 +36,9 @@ export default function ListaInscritos() {
 
     // Estados de modales
     modalStates,
+    
+    // Estados del modal de documentos
+    documentModalState,
 
     // Handlers
     handleSearchChange,
@@ -42,9 +46,11 @@ export default function ListaInscritos() {
     handleDeleteClick,
     handleConfirmDelete,
     handleViewComprobante,
+    handleViewDocumento,
     handleCloseModal,
     handleCloseDeleteModal,
     handleCloseComprobanteModal,
+    handleCloseDocumentModal,
     handleParticipanteUpdated,
     handlePrev,
     handleNext,
@@ -145,6 +151,7 @@ export default function ListaInscritos() {
               onEdit={handleEditClick}
               onDelete={handleDeleteClick}
               onViewComprobante={handleViewComprobante}
+              onViewDocumento={handleViewDocumento}
             />
           )}
 
@@ -192,6 +199,14 @@ export default function ListaInscritos() {
             onConfirm={handleConfirmDelete}
             participante={modalStates.participanteToDelete}
             loading={deleteLoading}
+          />
+
+          <DocumentosModal
+            isOpen={documentModalState.showDocumentModal}
+            onClose={handleCloseDocumentModal}
+            documentPath={documentModalState.selectedDocument}
+            documentType={documentModalState.documentType}
+            participanteName={documentModalState.selectedParticipanteName}
           />
         </div>
       </main>

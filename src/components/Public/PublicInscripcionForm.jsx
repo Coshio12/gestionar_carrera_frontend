@@ -4,6 +4,9 @@ import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
 
 import QR from '../../assets/patrocinios/TS360.jpg';
+import Campesinos from '../../assets/codigoQR/Campesinos.jpeg';
+import Extrangeros from '../../assets/codigoQR/Extrangeros.jpeg';
+import Federados from '../../assets/codigoQR/Federados.jpeg';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -32,6 +35,48 @@ export default function PublicInscripcionForm() {
 
   // Usar el ToastContext
   const { showSuccess, showError, showWarning } = useToast();
+
+  // Función para determinar qué QR mostrar según la categoría
+  const getQRByCategory = (categoriaId, categorias) => {
+    if (!categoriaId || !categorias.length) return null;
+    
+    const categoriaSeleccionada = categorias.find(cat => cat.id.toString() === categoriaId.toString());
+    if (!categoriaSeleccionada) return null;
+    
+    const nombreCategoria = categoriaSeleccionada.nombre.toLowerCase();
+    
+    if (nombreCategoria.includes('federado')) {
+      return { 
+        image: Federados, 
+        alt: "Código QR para Federados", 
+        title: "Federados",
+        description: "Código QR específico para categoría Federados"
+      };
+    } else if (nombreCategoria.includes('extranjero')) {
+      return { 
+        image: Extrangeros, 
+        alt: "Código QR para Extranjeros", 
+        title: "Extranjeros",
+        description: "Código QR específico para categoría Extranjeros"
+      };
+    } else if (nombreCategoria.includes('campesino') || 
+               nombreCategoria.includes('dama') || 
+               nombreCategoria.includes('master')) {
+      return { 
+        image: Campesinos, 
+        alt: `Código QR para ${categoriaSeleccionada.nombre}`, 
+        title: categoriaSeleccionada.nombre,
+        description: `Código QR para categoría ${categoriaSeleccionada.nombre}`
+      };
+    }
+    
+    return { 
+      image: Campesinos, 
+      alt: "Código QR para pago", 
+      title: "Pago General",
+      description: "Código QR para pago general"
+    };
+  };
 
   // Cargar categorías y equipos al montar el componente
   useEffect(() => {
@@ -586,12 +631,34 @@ export default function PublicInscripcionForm() {
               </div>
             </div>
 
-            <div className='text-center text-gray-600 text-sm sm:text-base'>
-              <img
-                src={QR}
-                alt="Codigo QR para pago"
-                className="object-contain max-h-20 sm:max-h-24 md:max-h-28 max-w-full mx-auto border-2 sm:border-4 border-white shadow-lg rounded"
-              />
+            {/* Sección de QR dinámico según categoría - REEMPLAZA la sección original de QR */}
+            <div className='text-center text-gray-600 text-sm sm:text-base items-center mt-6'>
+              {form.categoria_id ? (
+                (() => {
+                  const qrData = getQRByCategory(form.categoria_id, categorias);
+                  return qrData ? (
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">
+                        Código QR para {qrData.title}
+                      </h4>
+                      <img
+                        src={qrData.image}
+                        alt={qrData.alt}
+                        className="object-contain max-h-96 sm:max-h-96 md:max-h-96 max-w-full mx-auto border-2 sm:border-4 border-white shadow-lg rounded"
+                      />
+                      <p className="mt-2 text-sm text-gray-600">
+                        Escanea este código QR para realizar tu pago
+                      </p>
+                    </div>
+                  ) : null;
+                })()
+              ) : (
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-gray-500">
+                    Selecciona una categoría para ver el código QR de pago correspondiente
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Botón de envío responsive */}

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Menu, X, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import Icon from "../../assets/race-flag.png";
+
 export default function PublicHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -21,12 +23,12 @@ export default function PublicHeader() {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/2913/2913465.png"
+            src={Icon}
             alt="Logo Bicicleta"
             className="w-10 h-10 animate-pulse"
           />
           <h1 className="text-white text-2xl font-bold tracking-wide drop-shadow-md">
-            Carrera Chaguaya 🚴‍♂️ | TotalSport360
+            TotalSport360 | SanRoque - Chaguaya -SanRoque |
           </h1>
         </div>
 

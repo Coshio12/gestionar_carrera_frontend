@@ -8,7 +8,7 @@ export default function Hero() {
   });
 
   useEffect(() => {
-    const raceDate = new Date("2025-09-14T00:00:00");
+    const raceDate = new Date("2025-09-13T08:30:00-04:00");
 
     const updateCountdown = () => {
       const now = new Date();
@@ -72,7 +72,7 @@ export default function Hero() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-center">
           <div className="bg-white/20 p-3 sm:p-4 rounded-lg">
             <h3 className="font-bold text-base sm:text-lg">📅 Fecha</h3>
-            <p className="text-sm sm:text-base">14 de Septiembre 2025</p>
+            <p className="text-sm sm:text-base">13 de Septiembre 2025</p>
           </div>
           <div className="bg-white/20 p-3 sm:p-4 rounded-lg">
             <h3 className="font-bold text-base sm:text-lg">📍 Distancia</h3>

@@ -11,8 +11,8 @@ export default function InscripcionDestacada() {
         </h3>
         
         <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-gray-700 max-w-3xl mx-auto px-4">
-          Participa en una experiencia inolvidable. Cupos limitados. 
-          Incluye kit del corredor y seguro de participación.
+          Participa en una experiencia inolvidable. Te puedes registrar hasta el viernes 12 de septiembre a las 19:00pm Bolivia.
+          Incluye kit del corredor.
         </p>
 
         {/* Grid de beneficios responsive */}
@@ -20,13 +20,13 @@ export default function InscripcionDestacada() {
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg">
             <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 mx-auto mb-3 sm:mb-4" />
             <h4 className="font-bold text-base sm:text-lg mb-2">Fecha Confirmada</h4>
-            <p className="text-gray-600 text-sm sm:text-base">14 de Septiembre 2025</p>
+            <p className="text-gray-600 text-sm sm:text-base">13 de Septiembre 2025</p>
           </div>
           
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg">
             <Users className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 mx-auto mb-3 sm:mb-4" />
             <h4 className="font-bold text-base sm:text-lg mb-2">Kit Incluido</h4>
-            <p className="text-gray-600 text-sm sm:text-base">Camiseta, dorsal y más</p>
+            <p className="text-gray-600 text-sm sm:text-base">Dorsal y más</p>
           </div>
           
         </div>

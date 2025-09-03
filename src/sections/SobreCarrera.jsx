@@ -5,7 +5,7 @@ export default function SobreCarrera() {
     <section id="sobre-carrera" className="py-8 sm:py-10 md:py-12 px-4 bg-white rounded-lg mb-6 sm:mb-8">
       <div className="max-w-screen-xl mx-auto text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-700 mb-4 sm:mb-6">
-          ¿Qué es la Carrera Chaguaya?
+          ¿Qué es la Carrera San Roque - Chaguaya - San Roque?
         </h2>
         
         <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed mb-4 sm:mb-6 px-2">

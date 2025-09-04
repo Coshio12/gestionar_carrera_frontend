@@ -4,14 +4,12 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-import img1 from "../assets/carreras/carrera1.jpg"
-import img2 from "../assets/carreras/carrera2.jpg"
-import img3 from "../assets/carreras/carrera3.jpg"
-import img4 from "../assets/carreras/carrera4.jpg"
-import img5 from "../assets/patrocinios/TS360.jpg"
+
+import img1 from "../assets/patrocinios/TS360.jpg"
+import img2 from "../assets/patrocinios/Vinos.png"
 
 export default function Patrocinios() {
-  const imagenes = [img1, img2, img3, img4, img5];
+  const imagenes = [img1, img2];
 
   return (
     <section className="bg-gradient-to-r from-green-600 via-lime-500 to-yellow-400 shadow-lg sticky top-0 z-50" id="galeria">

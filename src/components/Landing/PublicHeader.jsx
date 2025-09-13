@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, Settings } from "lucide-react";
+import { Menu, X, Settings, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import Icon from "../../assets/race-flag.png";
@@ -11,7 +11,7 @@ export default function PublicHeader() {
 
   const menuItems = [
     { name: "Inicio", link: "#inicio" },
-    { name: "Sobre la Carrera", link: "#sobre-carrera" },
+    { name: "Significado", link: "#sobre-carrera" },
     { name: "Recorrido", link: "#recorrido" },
     { name: "Galería", link: "#galeria" },
     { name: "Inscripción", link: "#inscripcion" },
@@ -51,6 +51,15 @@ export default function PublicHeader() {
             </a>
           ))}
 
+          {/* Botón de Resultados */}
+          <Link
+            to="/resultados-publicos"
+            className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-yellow-600 hover:scale-105 transition duration-300 flex items-center gap-2"
+          >
+            <Trophy size={18} />
+            Resultados
+          </Link>
+
           {/* Botón de acceso al sistema administrativo */}
           <Link
             to="/login"
@@ -60,6 +69,7 @@ export default function PublicHeader() {
             Admin
           </Link>
         </nav>
+        
       </div>
 
       {/* Menú colapsable móvil */}
@@ -75,6 +85,16 @@ export default function PublicHeader() {
               {item.name}
             </a>
           ))}
+
+          {/* Botón de Resultados en móvil */}
+          <Link
+            to="/resultados-publicos"
+            className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-full shadow-md hover:bg-yellow-600 transition duration-300 flex items-center justify-center gap-2 mt-2"
+            onClick={toggleMenu}
+          >
+            <Trophy size={18} />
+            Ver Resultados
+          </Link>
 
           {/* Botón de acceso admin en móvil */}
           <Link

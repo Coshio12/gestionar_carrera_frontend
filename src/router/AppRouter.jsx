@@ -5,6 +5,7 @@ import { CronometroProvider } from '../context/CronometroContext';
 import Login from '../pages/Login';
 import PublicHome from '../pages/PublicHome'; // Nueva página pública
 import InscripcionPublica from '../pages/InscripcionPublica'; // Página de inscripción pública
+import PublicResultados from '../pages/PublicResultados'; // Página pública de resultados
 import Home from '../pages/Home'; // Dashboard administrativo
 import Inscripciones from '../pages/Inscripciones';
 import ListaInscritos from '../pages/ListaInscritos';
@@ -74,6 +75,12 @@ const AppRouter = () => {
               <Route 
                 path="/inscripcion" 
                 element={<InscripcionPublica />} 
+              />
+
+              {/* Resultados públicos (sin restricciones) */}
+              <Route 
+                path="/resultados-publicos" 
+                element={<PublicResultados />} 
               />
               
               {/* Login - solo disponible si no está autenticado */}
@@ -158,6 +165,7 @@ const AppRouter = () => {
                 }
               />
               
+              {/* Resultados administrativos - mantiene la ruta original protegida */}
               <Route 
                 path="/resultados" 
                 element={

@@ -7,6 +7,8 @@ import InscripcionDestacada from "../sections/InscripcionDestacada";
 import Footer from "../components/Landing/Footer";
 import GaleriaCarrera from "../sections/GaleriaCarrera";
 import Patrocinios from "../sections/Patrocinios";
+import Inscritos from "../sections/Inscritos";
+import ResultadosSection from "../sections/ResultadosSection";
 
 import Tarija from "../assets/tarija.jpg";
 
@@ -27,6 +29,10 @@ export default function PublicHome() {
           <SobreCarrera />
           <Recorrido />
           <GaleriaCarrera/>
+          <Inscritos />
+          
+          {/* Nueva sección de resultados - solo aparece si hay resultados disponibles */}
+          <ResultadosSection />
         </div>
       </div>
       

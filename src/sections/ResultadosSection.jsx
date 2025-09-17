@@ -57,7 +57,7 @@ const ResultadosSection = () => {
 
           <div className="p-6 md:p-8">
             {/* Estadísticas rápidas */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-8">
               <div className="text-center p-4 bg-gray-50 rounded-lg">
                 <BarChart3 className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-gray-800">
@@ -74,27 +74,10 @@ const ResultadosSection = () => {
                 <div className="text-sm text-gray-600">Categorías</div>
               </div>
               
-              <div className="col-span-2 md:col-span-1 text-center p-4 bg-gray-50 rounded-lg">
-                <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                <div className="text-sm font-semibold text-green-600 uppercase tracking-wide">
-                  En Vivo
-                </div>
-                <div className="text-xs text-gray-600">Tiempo Real</div>
-              </div>
             </div>
 
             {/* Opciones de resultados */}
             <div className="space-y-4 mb-6">
-              <div className="flex items-center justify-between p-4 bg-lime-50 rounded-lg border border-lime-200">
-                <div className="flex items-center space-x-3">
-                  <Clock className="w-6 h-6 text-lime-600" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Tiempos por Etapa</h4>
-                    <p className="text-sm text-gray-600">Resultados detallados de cada etapa</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-lime-600" />
-              </div>
 
               <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <div className="flex items-center space-x-3">
@@ -104,7 +87,6 @@ const ResultadosSection = () => {
                     <p className="text-sm text-gray-600">Ranking completo por categorías</p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-yellow-600" />
               </div>
             </div>
 
@@ -118,25 +100,6 @@ const ResultadosSection = () => {
                 <span>Ver Resultados Completos</span>
                 <ExternalLink className="w-5 h-5" />
               </Link>
-            </div>
-
-            {/* Nota adicional */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h5 className="font-medium text-blue-800 mb-1">
-                    Actualización en Tiempo Real
-                  </h5>
-                  <p className="text-sm text-blue-700">
-                    Los resultados se actualizan automáticamente conforme se registran los tiempos de cada participante.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

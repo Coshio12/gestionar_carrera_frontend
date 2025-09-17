@@ -31,18 +31,10 @@ export default function InscripcionDestacada() {
           
         </div>
 
-        {/* Botón principal responsive */}
-        <Link
-          to="/inscripcion"
-          className="inline-block bg-gradient-to-r from-green-600 to-green-500 text-white font-bold text-lg sm:text-xl py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-lg hover:from-green-700 hover:to-green-600 transform hover:scale-105 transition-all duration-300 mx-4"
-        >
-          ¡Inscríbete Ahora!
-        </Link>
-
         {/* Información adicional */}
         <div className="mt-6 sm:mt-8 text-xs sm:text-sm text-gray-600 px-4">
           <p>
-            <strong>Proceso rápido y seguro.</strong> Tu inscripción se confirma inmediatamente tras el pago.
+            <strong>TIEMPO DE INSCRIPCION EXPIRADO</strong>
           </p>
         </div>
       </div>
